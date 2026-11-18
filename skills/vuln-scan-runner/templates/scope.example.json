@@ -1,0 +1,27 @@
+{
+  "engagement": "示例漏扫项目",
+  "authorized_by": "示例客户信息安全部（书面授权编号 SOW-2026-002）",
+  "window": {
+    "start": "2026-11-01T09:00:00+08:00",
+    "end": "2026-11-10T18:00:00+08:00"
+  },
+  "targets": [
+    "app.example.com",
+    "*.api.example.com",
+    "10.10.0.0/24"
+  ],
+  "excludes": [
+    "pay.example.com",
+    "10.10.0.5"
+  ],
+  "allowed_tools": [
+    "nmap",
+    "nuclei",
+    "nikto"
+  ],
+  "escalation": {
+    "primary": "客户安全联系人（示例）",
+    "secondary": "项目负责人（示例）",
+    "phone": "+86-000-0000-0000"
+  }
+}

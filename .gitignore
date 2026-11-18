@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.runs/
+scope.local.json
+report.md
+.DS_Store
