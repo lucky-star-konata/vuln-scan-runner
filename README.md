@@ -17,9 +17,10 @@
 
 | 工具 | 用途 | 前提 |
 | --- | --- | --- |
-| `nmap` | 主机发现、端口探测 | 本机已安装 |
-| `nuclei` | 模板化漏洞扫描 | 本机已安装 |
+| `nmap` | 主机发现、端口探测、服务识别 | 本机已安装 |
+| `nuclei` | 模板化漏洞扫描（JSONL 输出） | 本机已安装 |
 | `nikto` | Web 服务器配置与常见问题 | 本机已安装 |
+| `whatweb` | Web 技术栈与指纹识别 | 本机已安装 |
 
 工具不随本仓库分发，脚本只负责编排。
 
@@ -39,8 +40,12 @@ python skills/vuln-scan-runner/scripts/scan_runner.py \
   --scope scope.json --target https://app.example.com \
   --tool nuclei --authorized --confirm "示例漏扫"
 
-# 3. 查看结果
+# 3. 汇总所有运行记录与应急事件
+python skills/vuln-scan-runner/scripts/summary.py
+
+# 4. 查看结果
 #    .runs/<时间戳>-<工具>/ 下是 manifest.json、stdout.log、stderr.log、工具输出
+#    .runs/summary.md 是运行汇总
 ```
 
 ## 授权模型
@@ -92,7 +97,8 @@ vuln-scan-runner/
 │   ├── templates/scope.example.json
 │   └── scripts/
 │       ├── scan_runner.py
-│       └── incident.py
+│       ├── incident.py
+│       └── summary.py
 ├── references/incident-response.md
 └── .runs/                    # 运行记录（gitignore）
 ```

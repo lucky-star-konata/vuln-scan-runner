@@ -17,7 +17,8 @@
   "allowed_tools": [
     "nmap",
     "nuclei",
-    "nikto"
+    "nikto",
+    "whatweb"
   ],
   "escalation": {
     "primary": "客户安全联系人（示例）",

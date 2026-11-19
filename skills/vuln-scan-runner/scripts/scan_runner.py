@@ -32,9 +32,10 @@ VERSION_FILE = ROOT / "VERSION"
 RUNS_ROOT = ROOT / ".runs"
 
 TOOL_PROFILES = {
-    "nmap": {"discovery", "ports"},
+    "nmap": {"discovery", "ports", "service"},
     "nuclei": {"safe"},
     "nikto": {"safe"},
+    "whatweb": {"safe"},
 }
 ERROR_PATTERNS = (
     "panic:",
@@ -175,6 +176,8 @@ def build_command(tool, target, profile, rate, output_file: Path):
         args = ["nmap"]
         if profile == "discovery":
             args += ["-sn"]
+        elif profile == "service":
+            args += ["-sT", "-Pn", "-sV", "--top-ports", "100"]
         else:
             args += ["-sT", "-Pn", "--top-ports", "100"]
         args += ["--max-rate", str(rate), "-oN", str(output_file), host]
@@ -184,7 +187,7 @@ def build_command(tool, target, profile, rate, output_file: Path):
         return [
             "nuclei", "-u", url,
             "-severity", "low,medium,high,critical",
-            "-rate-limit", str(rate), "-no-color", "-silent",
+            "-rate-limit", str(rate), "-no-color", "-silent", "-jsonl",
             "-o", str(output_file),
         ]
     if tool == "nikto":
@@ -193,6 +196,9 @@ def build_command(tool, target, profile, rate, output_file: Path):
             "nikto", "-host", url, "-maxtime", "300", "-Pause", "1",
             "-nointeractive", "-output", str(output_file), "-Format", "txt",
         ]
+    if tool == "whatweb":
+        url = validate_target(tool, target)
+        return ["whatweb", "--color=never", "--no-errors", "-a", "1", url]
     raise ValueError(f"不支持的工具: {tool}")
 
 

@@ -38,7 +38,8 @@ description: Run authorized vulnerability scans with locally installed tools. Us
 2. **预览**：`--dry-run` 查看将要执行的完整命令
 3. **执行**：确认无误后正式运行，运行目录自动落盘
 4. **判读**：按工具输出人工确认，不把原始告警直接当结论
-5. **收尾**：异常走应急响应；正常则归档运行目录
+5. **汇总**：`summary.py` 聚合运行记录、结果计数与应急事件
+6. **收尾**：异常走应急响应；正常则归档运行目录
 
 ## 命令
 
@@ -50,13 +51,15 @@ python scripts/scan_runner.py --scope scope.json --target 10.10.0.8 \
   --tool nmap --profile ports --rate 50 --dry-run --authorized --confirm "项目名"
 
 python scripts/scan_runner.py --list-tools
+python scripts/summary.py --runs .runs
 ```
 
 | 工具 | profile | 说明 |
 | --- | --- | --- |
-| `nmap` | `discovery` / `ports` | 主机发现；前 100 端口 TCP 连接扫描 |
-| `nuclei` | `safe` | 默认模板，限速 |
+| `nmap` | `discovery` / `ports` / `service` | 主机发现；前 100 端口 TCP 扫描；端口 + 服务版本 |
+| `nuclei` | `safe` | 默认模板，限速，输出 JSONL |
 | `nikto` | `safe` | Web 服务器检查，带暂停间隔 |
+| `whatweb` | `safe` | 技术栈与指纹识别，单目标 |
 
 ## 应急响应（五步）
 
