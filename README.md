@@ -1,5 +1,7 @@
 # vuln-scan-runner
 
+[![CI](https://github.com/lucky-star-konata/vuln-scan-runner/actions/workflows/ci.yml/badge.svg)](https://github.com/lucky-star-konata/vuln-scan-runner/actions/workflows/ci.yml)
+
 授权制漏洞扫描编排器：只调用你本机已安装的扫描工具，执行前强制校验授权范围，运行异常自动进入应急响应流程。
 
 > 仅限已取得书面授权的目标。详见 [DISCLAIMER.md](DISCLAIMER.md)。
