@@ -55,6 +55,44 @@ class CommandBuilderTests(unittest.TestCase):
             scan_runner.build_command("nuclei", "app.example.com", "safe", 50, Path("scan.txt"))
 
 
+class ScopeValidationTests(unittest.TestCase):
+    def load(self, data):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "scope.json"
+            path.write_text(json.dumps(data), encoding="utf-8")
+            return scan_runner.load_scope(path)
+
+    def test_accepts_valid_scope(self):
+        self.assertEqual(self.load(SCOPE)["engagement"], "测试项目")
+
+    def test_rejects_non_string_targets(self):
+        bad = dict(SCOPE)
+        bad["targets"] = ["app.example.com", 123]
+        with self.assertRaises(ValueError):
+            self.load(bad)
+
+    def test_rejects_non_list_excludes(self):
+        bad = dict(SCOPE)
+        bad["excludes"] = "pay.example.com"
+        with self.assertRaises(ValueError):
+            self.load(bad)
+
+    def test_rejects_reversed_window(self):
+        bad = dict(SCOPE)
+        bad["window"] = {
+            "start": "2026-11-10T18:00:00+08:00",
+            "end": "2026-11-01T09:00:00+08:00",
+        }
+        with self.assertRaises(ValueError):
+            self.load(bad)
+
+    def test_rejects_invalid_window_time(self):
+        bad = dict(SCOPE)
+        bad["window"] = {"start": "not-a-time", "end": "2026-11-10T18:00:00+08:00"}
+        with self.assertRaises(ValueError):
+            self.load(bad)
+
+
 class AuthorizationTests(unittest.TestCase):
     def at(self):
         return datetime.fromisoformat("2026-11-05T10:00:00+08:00")

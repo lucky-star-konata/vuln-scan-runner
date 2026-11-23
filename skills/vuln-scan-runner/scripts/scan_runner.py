@@ -104,6 +104,25 @@ def find_match(target: str, rules):
     return None
 
 
+def require_text(data, field):
+    value = data.get(field)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"scope 缺少有效的 {field}（字符串）")
+    return value
+
+
+def require_string_list(data, field, optional=False):
+    value = data.get(field)
+    if value is None and optional:
+        return []
+    if not isinstance(value, list) or (not value and not optional):
+        raise ValueError(f"scope 的 {field} 必须是{'非空' if not optional else ''}数组")
+    for item in value:
+        if not isinstance(item, str) or not item.strip():
+            raise ValueError(f"scope 的 {field} 只能包含非空字符串")
+    return [item.strip() for item in value]
+
+
 def load_scope(path: Path):
     try:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -113,11 +132,28 @@ def load_scope(path: Path):
         raise ValueError(f"scope JSON 解析失败: 第 {exc.lineno} 行 {exc.msg}")
     if not isinstance(data, dict):
         raise ValueError("scope 根节点必须是对象")
-    for field in ("engagement", "authorized_by", "targets", "allowed_tools", "window"):
-        if not data.get(field):
-            raise ValueError(f"scope 缺少 {field}")
-    if not data["window"].get("start") or not data["window"].get("end"):
-        raise ValueError("scope 缺少 window.start / window.end")
+    require_text(data, "engagement")
+    require_text(data, "authorized_by")
+    require_string_list(data, "targets")
+    require_string_list(data, "allowed_tools")
+    require_string_list(data, "excludes", optional=True)
+
+    window = data.get("window")
+    if not isinstance(window, dict):
+        raise ValueError("scope 缺少 window")
+    for key in ("start", "end"):
+        if not isinstance(window.get(key), str) or not window[key].strip():
+            raise ValueError("scope 缺少 window.start / window.end")
+    try:
+        start, end = parse_time(window["start"]), parse_time(window["end"])
+    except ValueError as exc:
+        raise ValueError(f"scope 的 window 时间格式无效（需 ISO 8601）: {exc}")
+    if start > end:
+        raise ValueError("scope 的 window.start 晚于 window.end")
+
+    escalation = data.get("escalation")
+    if escalation is not None and not isinstance(escalation, dict):
+        raise ValueError("scope 的 escalation 必须是对象")
     return data
 
 
